@@ -1,0 +1,210 @@
+<?php
+
+namespace DazzaDev\DgiiJsonGenerator\Models\Receiver;
+
+use DazzaDev\DgiiJsonGenerator\DataLoader;
+use DazzaDev\DgiiJsonGenerator\Models\Base\Activity;
+use DazzaDev\DgiiJsonGenerator\Models\Base\DeliveryPurpose;
+use DazzaDev\DgiiJsonGenerator\Models\Base\PersonType;
+use DazzaDev\DgiiJsonGenerator\Models\Base\TaxDomicile;
+use DazzaDev\DgiiJsonGenerator\Models\Geography\Address;
+use DazzaDev\DgiiJsonGenerator\Traits\ActivityTrait;
+use DazzaDev\DgiiJsonGenerator\Traits\EntityTrait;
+use DazzaDev\DgiiJsonGenerator\Traits\IdentificationTrait;
+use DazzaDev\DgiiJsonGenerator\Traits\NameTrait;
+
+class Receiver
+{
+    use ActivityTrait;
+    use EntityTrait;
+    use IdentificationTrait;
+    use NameTrait;
+
+    /**
+     * Trade Name
+     */
+    private ?string $tradeName = null;
+
+    /**
+     * Person type
+     */
+    private ?PersonType $personType = null;
+
+    /**
+     * Delivery purpose
+     */
+    private ?DeliveryPurpose $deliveryPurpose = null;
+
+    /**
+     * Tax Domicile
+     */
+    private ?TaxDomicile $taxDomicile = null;
+
+    /**
+     * Issuer constructor
+     */
+    public function __construct(array $data = [])
+    {
+        $this->initialize($data);
+    }
+
+    /**
+     * Initialize issuer data
+     */
+    private function initialize(array $data): void
+    {
+        if (empty($data)) {
+            return;
+        }
+
+        if (isset($data['identification_type'])) {
+            $this->setIdentificationType($data['identification_type']);
+        }
+
+        if (isset($data['identification_number'])) {
+            $this->setIdentificationNumber($data['identification_number']);
+        }
+
+        if (isset($data['nrc'])) {
+            $this->setNrc($data['nrc']);
+        }
+
+        if (isset($data['name'])) {
+            $this->setName($data['name']);
+        }
+
+        if (isset($data['trade_name'])) {
+            $this->setTradeName($data['trade_name']);
+        }
+
+        if (isset($data['phone'])) {
+            $this->setPhone($data['phone']);
+        }
+
+        if (isset($data['email'])) {
+            $this->setEmail($data['email']);
+        }
+
+        if (isset($data['address'])) {
+            $this->setAddress($data['address']);
+        }
+
+        if (isset($data['activity'])) {
+            $this->setActivity($data['activity']);
+        }
+
+        if (isset($data['delivery_purpose'])) {
+            $this->setDeliveryPurpose($data['delivery_purpose']);
+        }
+
+        if (isset($data['person_type'])) {
+            $this->setPersonType($data['person_type']);
+        }
+
+        if (isset($data['tax_domicile'])) {
+            $this->setTaxDomicile($data['tax_domicile']);
+        }
+    }
+
+    /**
+     * Get delivery purpose
+     */
+    public function getDeliveryPurpose(): ?DeliveryPurpose
+    {
+        return $this->deliveryPurpose;
+    }
+
+    /**
+     * Set delivery purpose
+     */
+    public function setDeliveryPurpose(string $deliveryPurposeCode): void
+    {
+        $deliveryPurpose = (new DataLoader('titulos-traslado-bienes'))->getByCode($deliveryPurposeCode);
+
+        $this->deliveryPurpose = new DeliveryPurpose($deliveryPurpose);
+    }
+
+    /**
+     * Trade Name
+     */
+    public function getTradeName(): ?string
+    {
+        return $this->tradeName;
+    }
+
+    /**
+     * Set Trade Name
+     */
+    public function setTradeName(string $tradeName): void
+    {
+        $this->tradeName = $tradeName;
+    }
+
+    /**
+     * Person type
+     */
+    public function getPersonType(): ?PersonType
+    {
+        return $this->personType;
+    }
+
+    /**
+     * Set Person Type
+     */
+    public function setPersonType(string|int $personTypeCode): void
+    {
+        $personType = (new DataLoader('tipos-persona'))->getByCode($personTypeCode);
+
+        $this->personType = new PersonType($personType);
+    }
+
+    /**
+     * Tax Domicile
+     */
+    public function getTaxDomicile(): ?TaxDomicile
+    {
+        return $this->taxDomicile;
+    }
+
+    /**
+     * Set Tax Domicile
+     */
+    public function setTaxDomicile(string|int $taxDomicileCode): void
+    {
+        $taxDomicile = (new DataLoader('domicilio-fiscal'))->getByCode($taxDomicileCode);
+
+        $this->taxDomicile = new TaxDomicile($taxDomicile);
+    }
+
+    /**
+     * Array representation using DGII Spanish keys
+     */
+    public function toArray(): array
+    {
+        $data = [
+            'tipoDocumento' => $this->getIdentificationType()?->getCode(),
+            'numDocumento' => $this->getIdentificationNumber(),
+            'nrc' => $this->getNrc(),
+            'nombre' => $this->getName(),
+            'telefono' => $this->getPhone(),
+            'correo' => $this->getEmail(),
+        ];
+
+        // Add address data if available
+        if ($this->address instanceof Address) {
+            $data = array_merge($data, $this->address->toArray());
+        }
+
+        // Add activity data if available
+        if ($this->activity instanceof Activity) {
+            $data = array_merge($data, $this->activity->toArray());
+        }
+
+        // Add delivery purpose data if available
+        if ($this->deliveryPurpose instanceof DeliveryPurpose) {
+            $data['bienTitulo'] = $this->getDeliveryPurpose()?->getCode();
+        }
+
+        return $data;
+    }
+}

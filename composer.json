@@ -1,0 +1,39 @@
+{
+  "name": "dazza-dev/dgii-json-generator",
+  "description": "Paquete para generar JSON de los documentos electrónicos DTE (Factura, Guía de remisión, Nota crédito, Nota débito y Comprobante de retención) El Salvador.",
+  "keywords": [
+    "dgii",
+    "dte",
+    "factura electrónica",
+    "salvador"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.0",
+    "luecano/numero-a-letras": "^3.0",
+    "ramsey/uuid": "^4.9"
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "Andres Daza",
+      "email": "adaza90@outlook.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "DazzaDev\\DgiiJsonGenerator\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "DazzaDev\\DgiiJsonGenerator\\Tests\\": "tests/"
+    }
+  }
+}
